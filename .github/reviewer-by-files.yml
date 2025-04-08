@@ -3,7 +3,6 @@
 "proto/**/*.proto":
   - rokas-ambrazevicius
   - neacsu
-  - zaneschepke
   - doums
   - pronebird
   - octol
@@ -13,5 +12,3 @@
   - doums
 "nym-vpn-apple/*":
   - rokas-ambrazevicius
-"nym-vpn-android/*":
-  - zaneschepke
