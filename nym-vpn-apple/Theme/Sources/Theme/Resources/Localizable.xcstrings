@@ -458,7 +458,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Error:"
+            "value" : "Error"
           }
         }
       }
@@ -2003,6 +2003,17 @@
         }
       }
     },
+    "settings.copiedToPasteboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copied to Clipboard!"
+          }
+        }
+      }
+    },
     "settings.deviceId" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2031,7 +2042,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disconnect if the internet drops"
+            "value" : "Always on to protect your data"
           }
         }
       }
