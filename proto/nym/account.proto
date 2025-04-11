@@ -4,34 +4,13 @@ package nym.vpn;
 
 // --- Error types
 
-message AccountError {
-  enum AccountErrorType {
-    STORE_ACCOUNT_ERROR_UNSPECIFIED = 0;
-
-    // The provided mnemonic was not able to be parsed
-    INVALID_MNEMONIC = 1;
-
-    // General error from the storage backend
-    STORAGE = 2;
-
-    // Unable to proceed while connected
-    IS_CONNECTED = 3;
-  }
-
-  AccountErrorType kind = 1;
-
-  // Detailed error message for logging and debugging
-  string message = 2;
-
-  // Optional additional details
-  map<string, string> details = 3;
-}
-
 message StoreAccountError {
   oneof error_detail {
+    string invalid_mnemonic = 5;
     string storage_error = 1;
     VpnApiErrorResponse error_response = 2;
     string unexpected_response = 3;
+    string internal = 4;
   }
 }
 
@@ -40,6 +19,7 @@ message SyncAccountError {
     bool no_account_stored = 1;
     VpnApiErrorResponse error_response = 2;
     string unexpected_response = 3;
+    bool offline = 5;
     string internal = 4;
   }
 }
@@ -50,6 +30,7 @@ message SyncDeviceError {
     bool no_device_stored = 2;
     VpnApiErrorResponse error_response = 3;
     string unexpected_response = 4;
+    bool offline = 6;
     string internal = 5;
   }
 }
@@ -60,6 +41,7 @@ message RegisterDeviceError {
     bool no_device_stored = 2;
     VpnApiErrorResponse error_response = 3;
     string unexpected_response = 4;
+    bool offline = 6;
     string internal = 5;
   }
 }
@@ -74,6 +56,7 @@ message ForgetAccountError {
     string reset_credential_store = 6;
     string remove_account_files = 7;
     string init_device_keys = 8;
+    string internal = 9;
   }
 }
 
@@ -98,6 +81,7 @@ message RequestZkNymError {
     VpnApiErrorResponse vpn_api = 3;
     string unexpected_vpn_api_response = 4;
     string storage = 5;
+    bool offline = 7;
     string internal = 6;
   }
 }
@@ -105,12 +89,6 @@ message RequestZkNymError {
 message RequestZkNymBundle {
   repeated RequestZkNymSuccess successes = 1;
   repeated RequestZkNymError failures = 2;
-}
-
-// --- Common types ---
-
-message AccountIdentity {
-  optional string account_identity = 1;
 }
 
 // --- Requests and responses ---
@@ -121,27 +99,19 @@ message StoreAccountRequest {
 }
 
 message StoreAccountResponse {
-  bool success = 1;
-  AccountError error = 2;
+  StoreAccountError error = 2;
 }
 
 message IsAccountStoredResponse {
-  oneof resp {
-    bool is_stored = 1;
-    AccountError error = 2;
-  }
+  bool is_stored = 1;
 }
 
 message ForgetAccountResponse {
-  bool success = 1;
-  AccountError error = 2;
+  ForgetAccountError error = 2;
 }
 
 message GetAccountIdentityResponse {
-  oneof id {
-    AccountIdentity account_identity = 1;
-    AccountError error = 2;
-  }
+  optional string account_identity = 1;
 }
 
 message GetAccountStateResponse {
@@ -206,15 +176,10 @@ message GetAccountStateResponse {
     optional AccountSummary account_summary = 3;
     optional DeviceState device = 4;
     optional RegisterDeviceResult register_device_result = 5;
-    // NOTE: don't reuse tag 6
-    // bool pending_zk_nym = 6;
     optional RequestZkNymResult request_zk_nym_result = 7;
   }
 
-  oneof result {
-    AccountStateSummary account = 1;
-    AccountError error = 2;
-  }
+  AccountStateSummary account = 1;
 }
 
 message RegisterDeviceResult {
@@ -262,10 +227,7 @@ message GetAccountUsageResponse {
     double bandwidth_used_gb = 8;
   }
 
-  oneof result {
-    AccountUsages account_usages = 1;
-    AccountError error = 2;
-  }
+  AccountUsages account_usages = 1;
 }
 
 message ResetDeviceIdentityRequest {
@@ -273,22 +235,13 @@ message ResetDeviceIdentityRequest {
   optional bytes seed = 1;
 }
 
-message ResetDeviceIdentityResponse {
-  bool success = 1;
-  AccountError error = 2;
-}
+message ResetDeviceIdentityResponse {}
 
 message GetDeviceIdentityResponse {
-  oneof id {
-    string device_identity = 1;
-    AccountError error = 2;
-  }
+  string device_identity = 1;
 }
 
-message RegisterDeviceResponse {
-  string json = 1;
-  AccountError error = 2;
-}
+message RegisterDeviceResponse {}
 
 message GetDevicesResponse {
   message Device {
@@ -309,79 +262,59 @@ message GetDevicesResponse {
     repeated Device devices = 1;
   }
 
-  oneof result {
-    Devices devices = 1;
-    AccountError error = 2;
-  }
+  Devices devices = 1;
 }
 
-message RequestZkNymResponse {
-  string json = 1;
-  AccountError error = 2;
-}
+message RequestZkNymResponse {}
 
 message GetDeviceZkNymsResponse {
-  string json = 1;
-  AccountError error = 2;
+  // todo
 }
 
 message GetZkNymsAvailableForDownloadResponse {
-  string json = 1;
-  AccountError error = 2;
+  // todo
 }
 
 message GetZkNymByIdRequest {
   string id = 1;
 }
 
-message GetZkNymByIdResponse {
-  string json = 1;
-  AccountError error = 2;
-}
+message GetZkNymByIdResponse {}
 
 message ConfirmZkNymDownloadedRequest {
   string id = 1;
 }
 
-message ConfirmZkNymDownloadedResponse {
-  AccountError error = 2;
-}
+message ConfirmZkNymDownloadedResponse {}
 
-message GetAvailableTicketsResponse {
-  message AvailableTickets {
-    // Remaining number of mixnet entry tickets
-    uint64 mixnet_entry_tickets = 1;
-    // Remaining mixnet entry data in bytes
-    uint64 mixnet_entry_data = 2;
-    // Remaining mixnet entry data formatted to a string using SI units
-    string mixnet_entry_data_si = 3;
+message AvailableTickets {
+  // Remaining number of mixnet entry tickets
+  uint64 mixnet_entry_tickets = 1;
+  // Remaining mixnet entry data in bytes
+  uint64 mixnet_entry_data = 2;
+  // Remaining mixnet entry data formatted to a string using SI units
+  string mixnet_entry_data_si = 3;
 
-    // Remaining number of mixnet exit tickets
-    uint64 mixnet_exit_tickets = 4;
-    // Remaining mixnet exit data in bytes
-    uint64 mixnet_exit_data = 5;
-    // Remaining mixnet exit data formatted to a string using SI units
-    string mixnet_exit_data_si = 6;
+  // Remaining number of mixnet exit tickets
+  uint64 mixnet_exit_tickets = 4;
+  // Remaining mixnet exit data in bytes
+  uint64 mixnet_exit_data = 5;
+  // Remaining mixnet exit data formatted to a string using SI units
+  string mixnet_exit_data_si = 6;
 
-    // Remaining number of vpn entry tickets
-    uint64 vpn_entry_tickets = 7;
-    // Remaining vpn entry data in bytes
-    uint64 vpn_entry_data = 8;
-    // Remaining vpn entry data formatted to a string using SI units
-    string vpn_entry_data_si = 9;
+  // Remaining number of vpn entry tickets
+  uint64 vpn_entry_tickets = 7;
+  // Remaining vpn entry data in bytes
+  uint64 vpn_entry_data = 8;
+  // Remaining vpn entry data formatted to a string using SI units
+  string vpn_entry_data_si = 9;
 
-    // Remaining number of vpn exit tickets
-    uint64 vpn_exit_tickets = 10;
-    // Remaining vpn exit data in bytes
-    uint64 vpn_exit_data = 11;
-    // Remaining vpn exit data formatted to a string using SI units
-    string vpn_exit_data_si = 12;
-  }
-
-  oneof resp {
-    AvailableTickets available_tickets = 1;
-    AccountError error = 2;
-  }
+  // Remaining number of vpn exit tickets
+  uint64 vpn_exit_tickets = 10;
+  // Remaining vpn exit data in bytes
+  uint64 vpn_exit_data = 11;
+  // Remaining vpn exit data formatted to a string using SI units
+  string vpn_exit_data_si = 12;
 }
 
 message DeleteLogFileResponse {
