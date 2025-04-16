@@ -157,7 +157,7 @@ class NymBackend private constructor(private val context: Context) : Backend, Tu
 	private suspend fun initEnvironment(environment: Tunnel.Environment) {
 		withContext(ioDispatcher) {
 			runCatching {
-				initEnvironment(environment.networkName())
+				initEnvironment(storagePath, environment.networkName())
 			}.onFailure {
 				Timber.w("Failed to setup environment, defaulting to bundle mainnet")
 				initFallbackMainnetEnvironment()
@@ -299,7 +299,7 @@ class NymBackend private constructor(private val context: Context) : Backend, Tu
 						tunnel.exitPoint,
 						tunnel.mode.isTwoHop(),
 						vpnService.await(),
-						null,
+						storagePath,
 						storagePath,
 						this@NymBackend,
 						tunnel.credentialMode,
