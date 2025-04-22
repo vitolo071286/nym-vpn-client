@@ -29,7 +29,6 @@ updates:
     ignore:
       - dependency-name: "nym-*"
     assignees:
-      - "octol"
       - "neacsu"
     groups:
       patch-updates:
